@@ -1,5 +1,5 @@
 import sys
-from parsing import run
+from parsing import Parser
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
 
@@ -79,17 +79,19 @@ class UiMainWindow(QMainWindow):
         self.result_dur = dir_list
 
     def start(self):
+        """ Кнопка старт """
         self.plainTextEdit.appendHtml('<b style="color: blue;">Начинаю парсить...</b>')
-        run(
+        parser = Parser(
             start_directory=self.start_dir,
             result_directory=self.result_dur,
             text_to_replace=self.start_text_edit.text(),
             result_text=self.result_text_edit.text(),
-            message_screen=self.plainTextEdit
-        )
+            message_screen=self.plainTextEdit)
+        parser.run()
         self.plainTextEdit.appendHtml('<b style="color: blue;">Успех на!</b><br>')
 
-    def quit(self):
+    @staticmethod
+    def quit():
         sys.exit(app.exec_())
 
 
