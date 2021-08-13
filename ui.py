@@ -87,8 +87,8 @@ class UiMainWindow(QMainWindow):
             text_to_replace=self.start_text_edit.text(),
             result_text=self.result_text_edit.text(),
             message_screen=self.plainTextEdit)
-        parser.run()
-        self.plainTextEdit.appendHtml('<b style="color: blue;">Успех на!</b><br>')
+        result = parser.run()
+        self.plainTextEdit.appendHtml(f'<b style="color: blue;">{result}</b><br>')
 
     @staticmethod
     def quit():

@@ -27,6 +27,7 @@ class Parser:
         """ Парсинг файла excel
         :param start_path: Папка которую парсим
         :param result_path: Папка куда сохраняем
+        :return 1 - успех, 0 - ошибка
         """
         self.is_replaced = False
         try:
@@ -36,18 +37,11 @@ class Parser:
                 self.parse_sheet(worksheet)
                 if self.is_replaced:
                     workbook.save(result_path)
-                    if self.message_screen:
-                        self.message_screen.appendHtml('<span style="color: green;">Заменено</span>')
-                    else:
-                        print('REPLACED')
+                    return 1
         except InvalidFileException:
-            if self.message_screen:
-                self.message_screen.appendHtml(
-                    '<span style="color: red;">Не могу заменить из-за старого формата Excel</span>')
-            else:
-                print('OLD FORMAT')
+            return 0
         except zipfile.BadZipFile:
-            pass
+            return 0
 
     def parse_sheet(self, worksheet):
         """ Парсинг книги из файла
@@ -64,14 +58,35 @@ class Parser:
 
     def run(self):
         """ Старт парсера """
-        for file_name in self.show_directory(self.start_directory):
+        try:
+            for file_name in self.show_directory(self.start_directory):
+                if self.message_screen:
+                    self.message_screen.appendHtml("Чтение файла <b>{}</b>".format(file_name))
+                else:
+                    print("Чтение файла <b>{}</b>".format(file_name))
+                path = os.path.join(self.start_directory, file_name)
+                result_path = os.path.join(self.result_directory, file_name)
+                parsing_result = self.parse_excel(path, result_path)
+                self.show_parsing_results(parsing_result)
+            return 'Парсинг завершен успешно!'
+        except FileNotFoundError:
+            return 'Ошибка парсинга. Указанная папка не обнаружена!'
+
+    def show_parsing_results(self, parsing_result):
+        """ Отображение результатов парсинга после каждого обработанного файла
+        :param parsing_result: - код результата
+        """
+        if parsing_result:
             if self.message_screen:
-                self.message_screen.appendHtml("Чтение файла <b>{}</b>".format(file_name))
+                self.message_screen.appendHtml('<span style="color: green;">Заменено</span>')
             else:
-                print("Чтение файла <b>{}</b>".format(file_name))
-            path = os.path.join(self.start_directory, file_name)
-            result_path = os.path.join(self.result_directory, file_name)
-            self.parse_excel(path, result_path)
+                print('REPLACED')
+        else:
+            if self.message_screen:
+                self.message_screen.appendHtml(
+                    '<span style="color: red;">Не могу заменить из-за старого формата Excel</span>')
+            else:
+                print('OLD FORMAT')
 
 
 if __name__ == '__main__':
@@ -80,4 +95,5 @@ if __name__ == '__main__':
         result_directory='new_documents',
         text_to_replace='to replace',
         result_text='replaced')
-    parser.run()
+    result = parser.run()
+    print(result)
