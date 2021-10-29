@@ -4,3 +4,4 @@ new_documents
 .idea
 __pycache__
 .DS_Store
+*.pyc
